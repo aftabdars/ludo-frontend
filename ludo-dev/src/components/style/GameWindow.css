@@ -1,0 +1,130 @@
+#game {
+    display:grid;
+    grid-template-columns: 240px 120px 240px;
+    grid-template-rows: 240px 120px 240px;
+    height:520px;
+    width:520px;
+}
+[id*="home-"]{
+    border:1px solid;
+    display:grid;
+    padding:30px;
+}
+#home-red {
+    background-color: #961f08;
+}
+
+#home-green {
+    background-color: #0c6304;
+}
+
+#home-blue {
+    background-color: #031961;
+}
+
+#home-yellow {
+    background-color: #b5a72d;
+}
+.homes-white {
+    background-color: white;
+    grid-template-columns: 0.5fr 0.5fr;
+    grid-template-rows: 0.5fr 0.5fr;
+    grid-gap:20px;
+    border: 2px solid;
+    display: grid;
+}
+[class*="circles"] {
+    clip-path: circle(30% at 50% 50%);
+    background-color: black;
+}
+[class*="circles-red"]{
+    background-color: #961f08;
+}
+[class*="circles-yellow"]{
+    background-color: #b5a72d;
+}
+[class*="circles-green"]{
+    background-color: #0c6304;
+}
+[class*="circles-blue"]{
+    background-color: #031961;
+}
+
+#grid-red-blue {
+    display:grid;
+    grid-template-columns: 40px 40px 40px 40px 40px 40px;
+}
+
+#grid-red-green {
+    display:grid;
+    grid-template-columns: 40px 40px 40px;
+}
+
+#grid-green-yellow {
+    display:grid;
+    grid-template-columns: 40px 40px 40px 40px 40px 40px;
+}
+
+#grid-blue-yellow {
+    display:grid;
+    grid-template-columns: 40px 40px 40px;
+}
+
+.play-box {
+    border:1px solid;
+    border-radius: 50%;
+}
+
+#ending-box {
+    display:grid;
+    border: 1px solid;
+}
+[id*="triangle"] {
+    grid-column: 1;
+    grid-row: 1
+}
+#top-triangle {
+    clip-path: polygon(50% 50%, 0 0, 100% 0);
+    background-color: #0c6304;
+}
+#left-triangle {
+    clip-path: polygon(50% 50%, 0 100%, 0 0);
+    background-color: #961f08;
+}
+#right-triangle {
+    clip-path: polygon(50% 50%, 100% 100%, 100% 0);
+    background-color: #b5a72d;
+}
+#bottom-triangle {
+    clip-path: polygon(50% 50%, 100% 100%, 0 100%);
+    background-color: #031961;
+}
+
+.red-play-box {
+    background-color: #961f08;
+}
+.green-play-box {
+    background-color: #0c6304;
+}
+.blue-play-box {
+    background-color: #031961;
+}
+.yellow-play-box {
+    background-color: #b5a72d;
+}
+.star{
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    background-color:#963274;
+}
+#pawn-temp-container > div {
+    border: #fff 1px solid;
+    border-radius: 50%;
+    position:fixed;
+    top: 200%;
+    left: 200%;
+    width: 20px;
+    height: 20px;
+}
+.sprite {
+    position: fixed;
+}

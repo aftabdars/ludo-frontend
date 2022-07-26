@@ -1,0 +1,25 @@
+.main-container {
+    background-color: rgba(35,35,35,75%);
+    color: white;
+    border-radius: 10px;  
+    box-shadow: 0 0 8px #666;
+    width: 500px;
+}
+body {
+    background-color:darkblue;
+    background-size:auto;
+    background-repeat: no-repeat;
+    background: linear-gradient(rgba(0,0,0, 0.5), rgba(0,0,0, 0.5)), url("/src/img/background.jpeg");
+}
+
+.center {
+    width: 600px;
+    height: 680px;
+
+    position: relative;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+    margin: auto;
+}
