@@ -1,0 +1,13 @@
+#room-dialogue{
+    width: 200px;
+    padding: 80px;
+    height: 100px;
+    display:flex;
+    justify-content:space-evenly;
+    align-items: center;
+    
+    background-color: rgba(35,35,35,75%);
+    color: white;
+    border-radius: 10px;  
+    box-shadow: 0 0 8px #666;
+}
