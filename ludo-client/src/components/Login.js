@@ -3,6 +3,9 @@ import './style/Login.css';
 import io from 'socket.io-client';
 
 const socket = io();
+socket.on('opponentJoin', ()=> {
+  document.getElementById('readyBtn').style.visibility = 'visible';
+})
 
 function Login() {
   const [state, setState] = useState('start');
@@ -10,8 +13,9 @@ function Login() {
   return(
     <>
       {state === 'start' && <LoginDialogue stateChange = {setState}/>};
-      {state === 'createRoom' && <CreateRoom />};
-      {state === 'joinRoom' && <JoinRoom />};
+      {state === 'createRoom' && <CreateRoom stateChange = {setState}/>};
+      {state === 'joinRoom' && <JoinRoom stateChange = {setState}/>};
+      {state === 'waiting' && <Waiting stateChange = {setState} />}
     </>
   )
 }
@@ -25,22 +29,31 @@ function LoginDialogue(props) {
   )
 }
 
-function CreateRoom() {
+function CreateRoom(props) {
   return(
     <>
       <label id= 'roomNameLbl'>Room Name:</label>
       <input type='text' id='roomName'></input>
-      <button onClick={(e)=> {e.preventDefault(); socket.emit('createRoom');}}>Create Room</button>
+      <button onClick={(e)=> {e.preventDefault(); socket.emit('createRoom'); props.stateChange('waiting')}}>Create Room</button>
     </>
   )
 }
 
-function JoinRoom() {
+function JoinRoom(props) {
   return(
     <>
       <label id= 'roomNameLbl'>Room Name:</label>
       <input type='text' id='roomName'></input>
-      <button onClick={(e)=> {e.preventDefault(); socket.emit('joinRoom')}}>Join Room</button>
+      <button onClick={(e)=> {e.preventDefault(); socket.emit('joinRoom'); props.stateChange('waiting')}}>Join Room</button>
+    </>
+  )
+}
+
+function Waiting(props) {
+  return(
+    <>
+      <h1>Waiting for opponenets</h1>
+      <a href="game"><button id='readyBtn' onClick={socket.emit('ready')}>Ready</button></a>
     </>
   )
 }
