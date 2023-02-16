@@ -1,48 +1,3 @@
-
-let currentDice = 0;
-let previousDice = 0;
-let currentPlayer = "green";
-
-let currentSpritePositions = {
-  red: [40,40,40,40],
-  green: [1,1,1,1],  //debugginghere turn this to 1 // if all pawns are finishing do nextmove
-  blue: [27,27,27,27],
-  yellow: [14,14,14,14]
-}
-let players = {
-  redOutOfHome: [false,false,false,false],
-  redKiller: false,
-  greenOutOfHome: [false,false,false,false],  //debugging
-  greenKiller: false, //debugging
-  blueOutOfHome: [false,false,false,false],
-  blueKiller: false,
-  yellowOutOfHome: [false,false,false,false],
-  yellowKiller: false,
-  redFinishing: [false,false,false,false],
-  greenFinishing: [false,false,false,false],
-  blueFinishing: [false,false,false,false],
-  yellowFinishing: [false,false,false,false]
-}
-const maxMoves = {
-  green: 51,
-  yellow: 12,
-  blue: 25,
-  red: 38,
-}
-const startingSpritePositions = {
-  red: 40,
-  green: 1,
-  blue: 27,
-  yellow: 14,
-}
-
-let finished = {
-  red: [false,false,false,false],
-  green: [false,false,false,false],
-  blue: [false,false,false,false],
-  yellow: [false,false,false,false]
-}
-
 export default function onPlayerJoin(playerColor) {
   movePawnsToHome(playerColor);
   // makeRollDiceClickable();
@@ -106,36 +61,36 @@ function myListener(event){
   onClickSprite(currentPlayer, event.target.id.slice(-1));
 }
 
-function onClickSprite(playerColor, spriteNumber) { 
-  if (players[playerColor+"Finishing"][spriteNumber - 1]) {
-    moveWithinFinish(playerColor,spriteNumber);
-    return;
-  }
-  if (boundaryReached(playerColor, spriteNumber) && !players[playerColor+"Killer"]) {
-    return;
-  }
-  if (boundaryReached(playerColor, spriteNumber) && players[playerColor+"Killer"]) {
-    moveToLastZone(playerColor, spriteNumber);
-    return;
-  }
-  if (currentSpritePositions[playerColor][spriteNumber-1] + currentDice > 51 && currentSpritePositions[playerColor][spriteNumber-1] + currentDice < 66) {
-    let difference = currentSpritePositions[playerColor][spriteNumber-1] + currentDice - 51;
-    currentSpritePositions[playerColor][spriteNumber-1] = difference-1;
-    movePawn(playerColor, spriteNumber);
-  }
-  else if (!players[playerColor+'OutOfHome'][spriteNumber-1] && currentDice!=6){
-    return;
-  }
-  else if (players[playerColor+'OutOfHome'][spriteNumber-1]) {
-    currentSpritePositions[playerColor][spriteNumber-1] = currentSpritePositions[playerColor][spriteNumber-1] + currentDice;
-    movePawn(playerColor, spriteNumber);
-  } 
-  if (!players[playerColor+'OutOfHome'][spriteNumber-1] && currentDice==6) {
-    // currentSpritePositions[playerColor][spriteNumber-1] = currentSpritePositions[playerColor][spriteNumber-1] + 1;
-    players[playerColor+'OutOfHome'][spriteNumber-1] = true;
-    movePawn(playerColor, spriteNumber);
-  }
-}
+// function onClickSprite(playerColor, spriteNumber) { 
+//   if (players[playerColor+"Finishing"][spriteNumber - 1]) {
+//     moveWithinFinish(playerColor,spriteNumber);
+//     return;
+//   }
+//   if (boundaryReached(playerColor, spriteNumber) && !players[playerColor+"Killer"]) {
+//     return;
+//   }
+//   if (boundaryReached(playerColor, spriteNumber) && players[playerColor+"Killer"]) {
+//     moveToLastZone(playerColor, spriteNumber);
+//     return;
+//   }
+//   if (currentSpritePositions[playerColor][spriteNumber-1] + currentDice > 51 && currentSpritePositions[playerColor][spriteNumber-1] + currentDice < 66) {
+//     let difference = currentSpritePositions[playerColor][spriteNumber-1] + currentDice - 51;
+//     currentSpritePositions[playerColor][spriteNumber-1] = difference-1;
+//     movePawn(playerColor, spriteNumber);
+//   }
+//   else if (!players[playerColor+'OutOfHome'][spriteNumber-1] && currentDice!=6){
+//     return;
+//   }
+//   else if (players[playerColor+'OutOfHome'][spriteNumber-1]) {
+//     currentSpritePositions[playerColor][spriteNumber-1] = currentSpritePositions[playerColor][spriteNumber-1] + currentDice;
+//     movePawn(playerColor, spriteNumber);
+//   } 
+//   if (!players[playerColor+'OutOfHome'][spriteNumber-1] && currentDice==6) {
+//     // currentSpritePositions[playerColor][spriteNumber-1] = currentSpritePositions[playerColor][spriteNumber-1] + 1;
+//     players[playerColor+'OutOfHome'][spriteNumber-1] = true;
+//     movePawn(playerColor, spriteNumber);
+//   }
+// }
 
 function boundaryReached(playerColor, spriteNumber) {
   let hasRotated = false;
