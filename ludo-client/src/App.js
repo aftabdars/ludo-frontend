@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
-import Game from './Game';
+// import Game from './Game';
 import Login from './components/Login';
-import {useRoutes} from 'hookrouter';
+// import {useRoutes} from 'hookrouter';
 
 
 const socket = io();
@@ -35,10 +35,14 @@ export default function App() {
     socket.emit('ping');
   }
 
-  const routeResult = useRoutes({
-    "/": () => <Login />,
-    "/game": () => <Game />
-  })
+  // const routeResult = useRoutes({
+  //   "/": () => <Login />,
+  //   "/game": () => <Game />
+  // })
 
-  return routeResult;
+  return (
+    <>
+      <Login />
+    </>
+  );
 }

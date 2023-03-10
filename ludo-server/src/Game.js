@@ -1,23 +1,24 @@
 class Game {
 
-    Game(id, name, player) {
-        let room = {
-            roomId: id,
-            roomName: name,
-            players: [player]
+    constructor(roomId, roomPass, playerId, playerName, io) {
+        this.roomId = roomId;
+        this.io = io;
+        this.room = {
+            roomPass: roomPass,
+            players: [{'playerId': playerId,'ready':false, 'color': 'red', 'playerName': playerName}]
         }
 
-        let currentDice = 0;
-        let previousDice = 0;
-        let currentPlayer = "green";
+        this.currentDice = 0;
+        this.previousDice = 0;
+        this.currentPlayer = "red";
 
-        let currentSpritePositions = {
+        this.currentSpritePositions = {
         red: [40,40,40,40],
         green: [1,1,1,1],  //debugginghere turn this to 1 // if all pawns are finishing do nextmove
         blue: [27,27,27,27],
         yellow: [14,14,14,14]
         }
-        let players = {
+        this.players = {
         redOutOfHome: [false,false,false,false],
         redKiller: false,
         greenOutOfHome: [false,false,false,false],  //debugging
@@ -31,20 +32,20 @@ class Game {
         blueFinishing: [false,false,false,false],
         yellowFinishing: [false,false,false,false]
         }
-        const maxMoves = {
+        this.maxMoves = {
         green: 51,
         yellow: 12,
         blue: 25,
         red: 38,
         }
-        const startingSpritePositions = {
+        this.startingSpritePositions = {
         red: 40,
         green: 1,
         blue: 27,
         yellow: 14,
         }
 
-        let finished = {
+        this.finished = {
         red: [false,false,false,false],
         green: [false,false,false,false],
         blue: [false,false,false,false],
@@ -52,13 +53,36 @@ class Game {
         }
     }
 
-onPlayerJoin(playerColor) {
-  movePawnsToHome(playerColor);
-  // makeRollDiceClickable();
-  // makeSpritesClickable(playerColor);
-  playerInHand(currentPlayer);
-  return;
-}
+  join(playerId, playerName) {
+    let color;
+    switch(this.room.players.length){
+      case 1: color = 'yellow'; break;
+      case 2: color = 'green'; break;
+      case 3: color = 'blue'; break;
+    }
+    this.room.players.push({'playerId': playerId, 'ready': false, 'color': color, 'playerName': playerName})
+    return;
+  }
+
+  nextMove() {
+    let currentPlayerIndex;
+    this.room.players.forEach((item,index, arr)=> {
+      if(item.color == this.currentPlayer){
+        if(index == this.players.length-1){
+          this.currentPlayer = 'red';
+          currentPlayerIndex = 0;
+        }
+        else {
+          // this.currentPlayer = this.room.players[currentPlayerIndex].color;
+          currentPlayerIndex = index+1;
+        }
+      }
+    });
+    //find a way to emit through here
+    this.currentPlayer = this.room.players[currentPlayerIndex]['color'];
+    let playerId = this.room.players[currentPlayerIndex].playerId;
+    this.io.to(playerId).emit('enableDice')
+  }
 
 // makeRollDiceClickable(){
 //   let button = document.getElementById("roll-dice-btn");
@@ -157,14 +181,16 @@ boundaryReached(playerColor, spriteNumber) {
 }
 
 rollDice() {
-  currentDice = Math.floor(Math.random() * (6 - 1 + 1) + 1);
+  this.currentDice = Math.floor(Math.random() * (6 - 1 + 1) + 1);
 //   let diceCounter = document.getElementById('dice-counter');
 //   diceCounter.innerHTML = currentDice;
+  this.io.to(`${this.roomId}`).emit('updateDice', this.currentDice);
 //   document.getElementById('roll-dice-btn').removeEventListener("click", rollDice);
-  if(currentDice < 6 && isLocked(currentPlayer)) {
+  if(this.currentDice < 6 && isLocked(this.currentPlayer)) {
     nextMove();
   }
   else {
+    this.io.sockets.socket(playerId).emit('enableSprites');
     // makeSpritesClickable(currentPlayer); //server
   }
   return;
@@ -255,31 +281,31 @@ nextMoveSamePlayer() {
   return;
 }
 
-nextMove(){
-//   document.getElementById('dice-counter').innerHTML = ""
-//   disableSprites(currentPlayer); //server
+// nextMove(){
+// //   document.getElementById('dice-counter').innerHTML = ""
+// //   disableSprites(currentPlayer); //server
   
-  let player = currentPlayer
-  switch (player) {
-    case "red": currentPlayer="green" 
-    break;
-    case "green": currentPlayer="yellow" 
-    break;
-    case "yellow": currentPlayer="blue" 
-    break;
-    case "blue": currentPlayer="red" 
-    break;
-  }
+//   let player = currentPlayer
+//   switch (player) {
+//     case "red": currentPlayer="green" 
+//     break;
+//     case "green": currentPlayer="yellow" 
+//     break;
+//     case "yellow": currentPlayer="blue" 
+//     break;
+//     case "blue": currentPlayer="red" 
+//     break;
+//   }
   // didMove = false;
 
-  makeRollDiceClickable();
-  // window.alert(currentPlayer+"'s turn"); //temporary code
-  previousDice = currentDice;
-  currentDice = 0; //working here 5pm
-  // document.getElementById('dice-counter').innerHTML = ".  previous= "+previousDice+"      current= "+ currentDice;
-  playerInHand(currentPlayer);
-  return;
-}
+//   makeRollDiceClickable();
+//   // window.alert(currentPlayer+"'s turn"); //temporary code
+//   previousDice = currentDice;
+//   currentDice = 0; //working here 5pm
+//   // document.getElementById('dice-counter').innerHTML = ".  previous= "+previousDice+"      current= "+ currentDice;
+//   playerInHand(currentPlayer);
+//   return;
+// }
 
 playerInHand(playerColor) {
 //   let navTurn = document.getElementById('player-turn')
@@ -457,3 +483,5 @@ hasWon(playerColor) {
 //   console.log("resize");
 // }, true);
 }
+
+module.exports = Game;

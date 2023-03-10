@@ -1,14 +1,22 @@
-export default function onPlayerJoin(playerColor) {
-  movePawnsToHome(playerColor);
-  // makeRollDiceClickable();
-  // makeSpritesClickable(playerColor);
-  playerInHand(currentPlayer);
-  return;
+// export default function onPlayerJoin(playerColor) {
+//   movePawnsToHome(playerColor);
+//   // makeRollDiceClickable();
+//   // makeSpritesClickable(playerColor);
+//   playerInHand(currentPlayer);
+//   return;
+// }
+
+import io from "socket.io-client";
+var roomId = 'f';
+const socket = io();
+
+export function setRoomId(id){
+  roomId = id;
 }
 
-function makeRollDiceClickable(){
+export function enableDice(){
   let button = document.getElementById("roll-dice-btn");
-  button.addEventListener("click", rollDice);
+  button.addEventListener("click", socket.emit('rollDice', {'roomId': roomId}));
   return;
 }
 
@@ -20,7 +28,7 @@ function getOffset(el) {
     };
   }
 
-function movePawnsToHome(playerColor){
+export function movePawnsToHome(playerColor){
   for (let i=1; i<5; i++){
     let postitionContainer = document.getElementById(playerColor+"-circle-"+i);
     let position = getOffset(postitionContainer);
@@ -32,10 +40,11 @@ function movePawnsToHome(playerColor){
     pawn.style.marginLeft= "28px";
     pawn.style.backgroundColor=playerColor;
   }
+  console.log(roomId);
   return;
 }
 
-function makeSpritesClickable(playerColor) {
+export function enableSprites(playerColor) {
   for (let i=1; i<5; i++){
     let pawn = document.getElementById(playerColor+"-pawn-"+i);
     pawn.addEventListener("click", myListener);
@@ -58,7 +67,8 @@ function disableSprites(playerColor) {
 }
 
 function myListener(event){
-  onClickSprite(currentPlayer, event.target.id.slice(-1));
+  // onClickSprite(currentPlayer, event.target.id.slice(-1));
+  socket.emit('onClickSprite', {'spriteNumber': event.target.id.slice(-1)})
 }
 
 // function onClickSprite(playerColor, spriteNumber) { 
@@ -92,240 +102,240 @@ function myListener(event){
 //   }
 // }
 
-function boundaryReached(playerColor, spriteNumber) {
-  let hasRotated = false;
-  if (currentSpritePositions[playerColor][spriteNumber-1] <= maxMoves[playerColor]){ //this change
-    hasRotated = true;
-  }
-  if (currentSpritePositions[playerColor][spriteNumber-1] + currentDice > maxMoves[playerColor] && hasRotated) {
-    return true; //working on this
-  }
-}
+// function boundaryReached(playerColor, spriteNumber, currentSpritePositions, maxMoves, currentDice) {
+//   let hasRotated = false;
+//   if (currentSpritePositions[playerColor][spriteNumber-1] <= maxMoves[playerColor]){ //this change
+//     hasRotated = true;
+//   }
+//   if (currentSpritePositions[playerColor][spriteNumber-1] + currentDice > maxMoves[playerColor] && hasRotated) {
+//     return true; //working on this
+//   }
+// }
 
-function rollDice() {
-  currentDice = Math.floor(Math.random() * (6 - 1 + 1) + 1);
-  let diceCounter = document.getElementById('dice-counter');
-  diceCounter.innerHTML = currentDice;
-  document.getElementById('roll-dice-btn').removeEventListener("click", rollDice);
-  if(currentDice < 6 && isLocked(currentPlayer)) {
-    nextMove();
-  }
-  else {
-    makeSpritesClickable(currentPlayer);
-  }
-  return;
-}
+// function rollDice(currentDice, currentPlayer) {
+//   currentDice = Math.floor(Math.random() * (6 - 1 + 1) + 1);
+//   let diceCounter = document.getElementById('dice-counter');
+//   diceCounter.innerHTML = currentDice;
+//   document.getElementById('roll-dice-btn').removeEventListener("click", rollDice);
+//   if(currentDice < 6 && isLocked(currentPlayer)) {
+//     nextMove();
+//   }
+//   else {
+//     makeSpritesClickable(currentPlayer);
+//   }
+//   return;
+// }
 
-function opponentExists (playerColor, position) {
-  if(position == 48 || position == 1 || position == 9 || position == 14 || position == 22 || position == 27 || position == 35 || position == 40){
-    return false
-  }
+// function opponentExists (playerColor, position, currentSpritePositions) {
+//   if(position == 48 || position == 1 || position == 9 || position == 14 || position == 22 || position == 27 || position == 35 || position == 40){
+//     return false
+//   }
 
   // let x = [["white",69],["white",69],["white",69],["white",69]]
-  let colors = Object.keys(currentSpritePositions);
-  let killFlag = false;
+//   let colors = Object.keys(currentSpritePositions);
+//   let killFlag = false;
 
-  for (let i=0; i<4; i++) {
-    let currentColor = colors[i];
-    for(let j=0; j<4; j++){
-      if (position == currentSpritePositions[currentColor][j] && currentColor != playerColor) {
-        // x[i][0] = currentColor;
-        // x[i][1] = j;
-        killFlag = killOpponent(currentColor, j + 1);
-      }
-    }
-  }
-  return killFlag;
-}
+//   for (let i=0; i<4; i++) {
+//     let currentColor = colors[i];
+//     for(let j=0; j<4; j++){
+//       if (position == currentSpritePositions[currentColor][j] && currentColor != playerColor) {
+//         // x[i][0] = currentColor;
+//         // x[i][1] = j;
+//         killFlag = killOpponent(currentColor, j + 1);
+//       }
+//     }
+//   }
+//   return killFlag;
+// }
 
-function movePawn(playerColor, spriteNumber){
-  let x = currentSpritePositions[playerColor][spriteNumber - 1];
-  let postitionContainer = document.getElementById("box"+x);
-  let pawn = document.getElementById(playerColor+"-pawn-"+spriteNumber);  //working here.. sprites dont return to home,, also extra turn after killing
-  let position = getOffset(postitionContainer);  //working here
-  let previousPosition = getOffset(pawn);
+// function movePawn(playerColor, spriteNumber, currentSpritePositions, currentDice){
+//   let x = currentSpritePositions[playerColor][spriteNumber - 1];
+//   let postitionContainer = document.getElementById("box"+x);
+//   let pawn = document.getElementById(playerColor+"-pawn-"+spriteNumber);  //working here.. sprites dont return to home,, also extra turn after killing
+//   let position = getOffset(postitionContainer);  //working here
+//   let previousPosition = getOffset(pawn);
   
-  let killFlag = opponentExists(playerColor, x);
-  animatePawn(pawn, previousPosition, position);
+//   let killFlag = opponentExists(playerColor, x);
+//   animatePawn(pawn, previousPosition, position);
 
-  // pawn.style.top= position.top+"px";
-  // pawn.style.left= position.left+"px";
-  pawn.style.marginTop= "9px";
-  pawn.style.marginLeft= "9px";
+//   // pawn.style.top= position.top+"px";
+//   // pawn.style.left= position.left+"px";
+//   pawn.style.marginTop= "9px";
+//   pawn.style.marginLeft= "9px";
 
-  if (killFlag) {
-    console.log(killFlag);
-    nextMoveSamePlayer();
-  }
-  else if (currentDice == 6) {
-    nextMoveSamePlayer(); //check this
-  } else {
-    nextMove();
-  }
+//   if (killFlag) {
+//     console.log(killFlag);
+//     nextMoveSamePlayer();
+//   }
+//   else if (currentDice == 6) {
+//     nextMoveSamePlayer(); //check this
+//   } else {
+//     nextMove();
+//   }
   
-  return;
-}
+//   return;
+// }
 
-function killOpponent(playerColor,spriteNumber){
-    let postitionContainer = document.getElementById(playerColor+"-circle-"+spriteNumber);
-    let position = getOffset(postitionContainer);
-    let pawn = document.getElementById(playerColor+"-pawn-"+spriteNumber);
-    let previousPosition = getOffset(pawn);
+// function killOpponent(playerColor,spriteNumber, players, currentPlayer, currentSpritePositions, star){
+//     let postitionContainer = document.getElementById(playerColor+"-circle-"+spriteNumber);
+//     let position = getOffset(postitionContainer);
+//     let pawn = document.getElementById(playerColor+"-pawn-"+spriteNumber);
+//     let previousPosition = getOffset(pawn);
     
-    // pawn.style.top= position.top+"px";
-    // pawn.style.left= position.left+"px";
-    animatePawn(pawn,previousPosition,position);
-    pawn.style.marginTop= "28px";
-    pawn.style.marginLeft= "28px";
-    // pawn.style.backgroundColor=playerColor;
+//     // pawn.style.top= position.top+"px";
+//     // pawn.style.left= position.left+"px";
+//     animatePawn(pawn,previousPosition,position);
+    // pawn.style.marginTop= "28px";
+    // pawn.style.marginLeft= "28px";
+//     // pawn.style.backgroundColor=playerColor;
 
-    players[currentPlayer+"Killer"] = true;
-    console.log(players);
+//     players[currentPlayer+"Killer"] = true;
+//     console.log(players);
 
-    //set vars
-    currentSpritePositions[playerColor][spriteNumber -1] = startingSpritePositions[playerColor];
-    players[playerColor+"OutOfHome"][spriteNumber-1] = false;
-    if (isLocked(playerColor)) {
-      players[playerColor+"Killer"] = false;
-    }
-  return true;
-}
+//     //set vars
+//     currentSpritePositions[playerColor][spriteNumber -1] = startingSpritePositions[playerColor];
+//     players[playerColor+"OutOfHome"][spriteNumber-1] = false;
+//     if (isLocked(playerColor)) {
+//       players[playerColor+"Killer"] = false;
+//     }
+//   return true;
+// }
 
-function nextMoveSamePlayer() {
-  document.getElementById('dice-counter').innerHTML = "";
-  disableSprites(currentPlayer);
+// function nextMoveSamePlayer() {
+//   document.getElementById('dice-counter').innerHTML = "";
+//   disableSprites(currentPlayer);
 
-  makeRollDiceClickable();
+//   makeRollDiceClickable();
 
-  // currentDice = 0; //working here 5pm
-  return;
-}
+//   // currentDice = 0; //working here 5pm
+//   return;
+// }
 
-function nextMove(){
-  document.getElementById('dice-counter').innerHTML = ""
-  disableSprites(currentPlayer);
+// function nextMove(){
+//   document.getElementById('dice-counter').innerHTML = ""
+//   disableSprites(currentPlayer);
   
-  let player = currentPlayer
-  switch (player) {
-    case "red": currentPlayer="green" 
-    break;
-    case "green": currentPlayer="yellow" 
-    break;
-    case "yellow": currentPlayer="blue" 
-    break;
-    case "blue": currentPlayer="red" 
-    break;
-  }
+//   let player = currentPlayer
+//   switch (player) {
+//     case "red": currentPlayer="green" 
+//     break;
+//     case "green": currentPlayer="yellow" 
+//     break;
+//     case "yellow": currentPlayer="blue" 
+//     break;
+//     case "blue": currentPlayer="red" 
+//     break;
+//   }
   // didMove = false;
 
-  makeRollDiceClickable();
-  // window.alert(currentPlayer+"'s turn"); //temporary code
-  previousDice = currentDice;
-  currentDice = 0; //working here 5pm
-  // document.getElementById('dice-counter').innerHTML = ".  previous= "+previousDice+"      current= "+ currentDice;
-  playerInHand(currentPlayer);
-  return;
-}
+//   makeRollDiceClickable();
+//   // window.alert(currentPlayer+"'s turn"); //temporary code
+//   previousDice = currentDice;
+//   currentDice = 0; //working here 5pm
+//   // document.getElementById('dice-counter').innerHTML = ".  previous= "+previousDice+"      current= "+ currentDice;
+//   playerInHand(currentPlayer);
+//   return;
+// }
 
-function playerInHand(playerColor) {
-  let navTurn = document.getElementById('player-turn')
-  navTurn.innerHTML = playerColor+"'s turn.";
-  navTurn.style.color = playerColor;
+// function playerInHand(playerColor) {
+//   let navTurn = document.getElementById('player-turn')
+//   navTurn.innerHTML = playerColor+"'s turn.";
+//   navTurn.style.color = playerColor;
 
-  console.log(currentPlayer);
-  makeRollDiceClickable();
-  // makeSpritesClickable(playerColor);
-  return;
-}
+//   console.log(currentPlayer);
+//   makeRollDiceClickable();
+//   // makeSpritesClickable(playerColor);
+//   return;
+// }
 
-function isLocked(playerColor) {
-  for (let i=0;i<4;i++){
-    if (players[playerColor+"OutOfHome"][i]) {
-      return false;
-    }
-  }
-  return true;
+// function isLocked(playerColor) {
+//   for (let i=0;i<4;i++){
+//     if (players[playerColor+"OutOfHome"][i]) {
+//       return false;
+//     }
+//   }
+//   return true;
 
-  //include 6 logic in morning
-}
+//   //include 6 logic in morning
+// }
 
-function moveWithinFinish(playerColor, spriteNumber) {
-  let destination = currentSpritePositions[playerColor][spriteNumber - 1] + currentDice;
-  console.log('is finishing');
-  if (destination > 76) {
-    return;
-  }
-  if (destination == 76) {
-    spriteWon(playerColor, spriteNumber);
-    return;
-  }
+// function moveWithinFinish(playerColor, spriteNumber) {
+//   let destination = currentSpritePositions[playerColor][spriteNumber - 1] + currentDice;
+//   console.log('is finishing');
+//   if (destination > 76) {
+//     return;
+//   }
+//   if (destination == 76) {
+//     spriteWon(playerColor, spriteNumber);
+//     return;
+//   }
 
-  currentSpritePositions[playerColor][spriteNumber - 1] = destination;
-  let x = destination - 70;
-  let postitionContainer = document.getElementById("box-"+playerColor+"-"+x);
-  let pawn = document.getElementById(playerColor+"-pawn-"+spriteNumber); 
-  let position = getOffset(postitionContainer); 
+//   currentSpritePositions[playerColor][spriteNumber - 1] = destination;
+//   let x = destination - 70;
+//   let postitionContainer = document.getElementById("box-"+playerColor+"-"+x);
+//   let pawn = document.getElementById(playerColor+"-pawn-"+spriteNumber); 
+//   let position = getOffset(postitionContainer); 
 
-  let previousPosition = getOffset(pawn);
-  animatePawn(pawn,previousPosition,position);
-  // pawn.style.top= position.top+"px";
-  // pawn.style.left= position.left+"px";
-  pawn.style.marginTop= "9px";
-  pawn.style.marginLeft= "9px";
-  nextMove();
-}
+//   let previousPosition = getOffset(pawn);
+//   animatePawn(pawn,previousPosition,position);
+//   // pawn.style.top= position.top+"px";
+//   // pawn.style.left= position.left+"px";
+//   pawn.style.marginTop= "9px";
+//   pawn.style.marginLeft= "9px";
+//   nextMove();
+// }
 
-function moveToLastZone(playerColor,spriteNumber) {
-  let difference = currentSpritePositions[playerColor][spriteNumber-1] + currentDice - maxMoves[playerColor]; //working on this
-  if (difference == 6) {
-    spriteWon(playerColor, spriteNumber);
-    return;
-  }
+// function moveToLastZone(playerColor,spriteNumber) {
+//   let difference = currentSpritePositions[playerColor][spriteNumber-1] + currentDice - maxMoves[playerColor]; //working on this
+//   if (difference == 6) {
+//     spriteWon(playerColor, spriteNumber);
+//     return;
+//   }
 
-  currentSpritePositions[playerColor][spriteNumber - 1] = difference + 70;
+//   currentSpritePositions[playerColor][spriteNumber - 1] = difference + 70;
 
-  let x = currentSpritePositions[playerColor][spriteNumber - 1] - 70;
-  let postitionContainer = document.getElementById("box-"+playerColor+"-"+x);
-  let pawn = document.getElementById(playerColor+"-pawn-"+spriteNumber); 
-  let position = getOffset(postitionContainer); 
+//   let x = currentSpritePositions[playerColor][spriteNumber - 1] - 70;
+//   let postitionContainer = document.getElementById("box-"+playerColor+"-"+x);
+//   let pawn = document.getElementById(playerColor+"-pawn-"+spriteNumber); 
+//   let position = getOffset(postitionContainer); 
 
-  let previousPosition = getOffset(pawn);
-  animatePawn (pawn,previousPosition,position);
-  // pawn.style.top= position.top+"px";
-  // pawn.style.left= position.left+"px";
-  pawn.style.marginTop= "9px";
-  pawn.style.marginLeft= "9px";
+//   let previousPosition = getOffset(pawn);
+//   animatePawn (pawn,previousPosition,position);
+//   // pawn.style.top= position.top+"px";
+//   // pawn.style.left= position.left+"px";
+//   pawn.style.marginTop= "9px";
+//   pawn.style.marginLeft= "9px";
 
-  players[playerColor+"Finishing"][spriteNumber - 1] = true;
-  players[playerColor+"OutOfHome"][spriteNumber - 1] = false;
-  nextMove();
-}
+//   players[playerColor+"Finishing"][spriteNumber - 1] = true;
+//   players[playerColor+"OutOfHome"][spriteNumber - 1] = false;
+//   nextMove();
+// }
 
-function spriteWon(playerColor, spriteNumber){
-  finished[playerColor][spriteNumber - 1] = true; 
-  players[playerColor+"OutOfHome"][spriteNumber - 1] = false;
+// function spriteWon(playerColor, spriteNumber){
+//   finished[playerColor][spriteNumber - 1] = true; 
+//   players[playerColor+"OutOfHome"][spriteNumber - 1] = false;
 
-  let pawn = document.getElementById(playerColor+"-pawn-"+spriteNumber); 
+//   let pawn = document.getElementById(playerColor+"-pawn-"+spriteNumber); 
 
-  // pawn.style.top= "200%";
-  // pawn.style.left= "200%";
-  // pawn.style.marginTop= "9px";
-  // pawn.style.marginLeft= "9px";
-  let position = getOffset(document.getElementById('ending-box'));
-  let previousPosition = getOffset(pawn);
-  animatePawn(pawn,previousPosition,position);
-  pawn.removeEventListener("click", myListener);
+//   // pawn.style.top= "200%";
+//   // pawn.style.left= "200%";
+//   // pawn.style.marginTop= "9px";
+//   // pawn.style.marginLeft= "9px";
+//   let position = getOffset(document.getElementById('ending-box'));
+//   let previousPosition = getOffset(pawn);
+//   animatePawn(pawn,previousPosition,position);
+//   pawn.removeEventListener("click", myListener);
 
-  hasWon(playerColor);
-  nextMoveSamePlayer();
-  console.log('pawnwon');
-}
+//   hasWon(playerColor);
+//   nextMoveSamePlayer();
+//   console.log('pawnwon');
+// }
 
-function hasWon(playerColor) {
-  if (finished[playerColor][0] && finished[playerColor][1] && finished[playerColor][2] && finished[playerColor][3]) {
-    window.alert(playerColor+"won");
-  }
-}
+// function hasWon(playerColor) {
+//   if (finished[playerColor][0] && finished[playerColor][1] && finished[playerColor][2] && finished[playerColor][3]) {
+//     window.alert(playerColor+"won");
+//   }
+// }
 
 function animatePawn (pawn, previousPosition, position) {
   let id = null;
@@ -369,36 +379,45 @@ function animatePawn (pawn, previousPosition, position) {
       }
     }
   }
+  pawn.style.marginTop= "28px";
+  pawn.style.marginLeft= "28px";
 }
 
-window.addEventListener('resize', function(event) {
-  let playerColors = ["red","green","blue","yellow"];
-  for (let i=0;i<4;i++){
-    let playerColor = playerColors[i];
-    console.log(playerColor);
-    for (let j=1;j<5;j++){
-      let pawn = document.getElementById(playerColor+"-pawn-"+j);
+// window.addEventListener('resize', function(event) {
+//   let players = async ()=>{
+//     socket.emit('needDetails')
+//     let details = await socket.on('takeDetails',(details)=> {return details})
+//   }
+//   let currentSpritePositions = async ()=>{
+//     socket.emit('needSpritePositions')
+//   }
+//   let playerColors = ["red","green","blue","yellow"];
+//   for (let i=0;i<4;i++){
+//     let playerColor = playerColors[i];
+//     console.log(playerColor);
+//     for (let j=1;j<5;j++){
+//       let pawn = document.getElementById(playerColor+"-pawn-"+j);
 
-      if(players[playerColor+"OutOfHome"][j-1] && !players[playerColor+"Finishing"][j-1]) {
-        let x = currentSpritePositions[playerColor][j-1]
-        let position = getOffset(document.getElementById("box"+x));
-        pawn.style.top= position.top+"px";
-        pawn.style.left= position.left+"px";
-      }
-      if(!players[playerColor+"OutOfHome"][j-1]){
-        //send it to home
-        let position = getOffset(document.getElementById(playerColor+"-circle-"+j));
-        pawn.style.top= position.top+"px";
-        pawn.style.left= position.left+"px";
-      }
-      else if(players[playerColor+"Finishing"][j-1]){
-        let x = currentSpritePositions[playerColor][j-1] - 70;
-        let position = document.getElementById("box-"+playerColor+"-"+x);
-        pawn.style.top= position.top+"px";
-        pawn.style.left= position.left+"px";
-      }
-    }
-  }
-  // update locations for all pawns
-  console.log("resize");
-}, true);
+//       if(players[playerColor+"OutOfHome"][j-1] && !players[playerColor+"Finishing"][j-1]) {
+//         let x = currentSpritePositions[playerColor][j-1]
+//         let position = getOffset(document.getElementById("box"+x));
+//         pawn.style.top= position.top+"px";
+//         pawn.style.left= position.left+"px";
+//       }
+//       if(!players[playerColor+"OutOfHome"][j-1]){
+//         //send it to home
+//         let position = getOffset(document.getElementById(playerColor+"-circle-"+j));
+//         pawn.style.top= position.top+"px";
+//         pawn.style.left= position.left+"px";
+//       }
+//       else if(players[playerColor+"Finishing"][j-1]){
+//         let x = currentSpritePositions[playerColor][j-1] - 70;
+//         let position = document.getElementById("box-"+playerColor+"-"+x);
+//         pawn.style.top= position.top+"px";
+//         pawn.style.left= position.left+"px";
+//       }
+//     }
+//   }
+//   // update locations for all pawns
+//   console.log("resize");
+// }, true);
