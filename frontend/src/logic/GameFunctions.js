@@ -1,53 +1,54 @@
 
-let currentDice = 0;
-let previousDice = 0;
-let currentPlayer = "green";
+let Game = {
+   currentDice : 0,
+   previousDice : 0,
+   currentPlayer : "green",
+   currentSpritePositions : {
+    red: [40,40,40,40],
+    green: [1,1,1,1],  //debugginghere turn this to 1 // if all pawns are finishing do nextmove
+    blue: [27,27,27,27],
+    yellow: [14,14,14,14]
+  },
+  players : {
+    redOutOfHome: [false,false,false,false],
+    redKiller: false,
+    greenOutOfHome: [false,false,false,false],  //debugging
+    greenKiller: false, //debugging
+    blueOutOfHome: [false,false,false,false],
+    blueKiller: false,
+    yellowOutOfHome: [false,false,false,false],
+    yellowKiller: false,
+    redFinishing: [false,false,false,false],
+    greenFinishing: [false,false,false,false],
+    blueFinishing: [false,false,false,false],
+    yellowFinishing: [false,false,false,false]
+  },
+  maxMoves : {
+    green: 51,
+    yellow: 12,
+    blue: 25,
+    red: 38,
+  },
+  startingSpritePositions : {
+    red: 40,
+    green: 1,
+    blue: 27,
+    yellow: 14,
+  },
 
-let currentSpritePositions = {
-  red: [40,40,40,40],
-  green: [1,1,1,1],  //debugginghere turn this to 1 // if all pawns are finishing do nextmove
-  blue: [27,27,27,27],
-  yellow: [14,14,14,14]
-}
-let players = {
-  redOutOfHome: [false,false,false,false],
-  redKiller: false,
-  greenOutOfHome: [false,false,false,false],  //debugging
-  greenKiller: false, //debugging
-  blueOutOfHome: [false,false,false,false],
-  blueKiller: false,
-  yellowOutOfHome: [false,false,false,false],
-  yellowKiller: false,
-  redFinishing: [false,false,false,false],
-  greenFinishing: [false,false,false,false],
-  blueFinishing: [false,false,false,false],
-  yellowFinishing: [false,false,false,false]
-}
-const maxMoves = {
-  green: 51,
-  yellow: 12,
-  blue: 25,
-  red: 38,
-}
-const startingSpritePositions = {
-  red: 40,
-  green: 1,
-  blue: 27,
-  yellow: 14,
-}
-
-let finished = {
-  red: [false,false,false,false],
-  green: [false,false,false,false],
-  blue: [false,false,false,false],
-  yellow: [false,false,false,false]
+  finished : {
+    red: [false,false,false,false],
+    green: [false,false,false,false],
+    blue: [false,false,false,false],
+    yellow: [false,false,false,false]
+  },
 }
 
 export default function onPlayerJoin(playerColor) {
   movePawnsToHome(playerColor);
   // makeRollDiceClickable();
   // makeSpritesClickable(playerColor);
-  playerInHand(currentPlayer);
+  playerInHand(Game.currentPlayer);
   return;
 }
 
@@ -103,60 +104,60 @@ function disableSprites(playerColor) {
 }
 
 function myListener(event){
-  onClickSprite(currentPlayer, event.target.id.slice(-1));
+  onClickSprite(Game.currentPlayer, event.target.id.slice(-1));
 }
 
 function onClickSprite(playerColor, spriteNumber) { 
-  if (players[playerColor+"Finishing"][spriteNumber - 1]) {
+  if (Game.players[playerColor+"Finishing"][spriteNumber - 1]) {
     moveWithinFinish(playerColor,spriteNumber);
     return;
   }
-  if (boundaryReached(playerColor, spriteNumber) && !players[playerColor+"Killer"]) {
+  if (boundaryReached(playerColor, spriteNumber) && !Game.players[playerColor+"Killer"]) {
     return;
   }
-  if (boundaryReached(playerColor, spriteNumber) && players[playerColor+"Killer"]) {
+  if (boundaryReached(playerColor, spriteNumber) && Game.players[playerColor+"Killer"]) {
     moveToLastZone(playerColor, spriteNumber);
     return;
   }
-  if (currentSpritePositions[playerColor][spriteNumber-1] + currentDice > 51 && currentSpritePositions[playerColor][spriteNumber-1] + currentDice < 66) {
-    let difference = currentSpritePositions[playerColor][spriteNumber-1] + currentDice - 51;
-    currentSpritePositions[playerColor][spriteNumber-1] = difference-1;
+  if (Game.currentSpritePositions[playerColor][spriteNumber-1] + Game.currentDice > 51 && Game.currentSpritePositions[playerColor][spriteNumber-1] + Game.currentDice < 66) {
+    let difference = Game.currentSpritePositions[playerColor][spriteNumber-1] + Game.currentDice - 51;
+    Game.currentSpritePositions[playerColor][spriteNumber-1] = difference-1;
     movePawn(playerColor, spriteNumber);
   }
-  else if (!players[playerColor+'OutOfHome'][spriteNumber-1] && currentDice!=6){
+  else if (!Game.players[playerColor+'OutOfHome'][spriteNumber-1] && Game.currentDice!=6){
     return;
   }
-  else if (players[playerColor+'OutOfHome'][spriteNumber-1]) {
-    currentSpritePositions[playerColor][spriteNumber-1] = currentSpritePositions[playerColor][spriteNumber-1] + currentDice;
+  else if (Game.players[playerColor+'OutOfHome'][spriteNumber-1]) {
+    Game.currentSpritePositions[playerColor][spriteNumber-1] = Game.currentSpritePositions[playerColor][spriteNumber-1] + Game.currentDice;
     movePawn(playerColor, spriteNumber);
   } 
-  if (!players[playerColor+'OutOfHome'][spriteNumber-1] && currentDice==6) {
-    // currentSpritePositions[playerColor][spriteNumber-1] = currentSpritePositions[playerColor][spriteNumber-1] + 1;
-    players[playerColor+'OutOfHome'][spriteNumber-1] = true;
+  if (!Game.players[playerColor+'OutOfHome'][spriteNumber-1] && Game.currentDice==6) {
+    // Game.currentSpritePositions[playerColor][spriteNumber-1] = Game.currentSpritePositions[playerColor][spriteNumber-1] + 1;
+    Game.players[playerColor+'OutOfHome'][spriteNumber-1] = true;
     movePawn(playerColor, spriteNumber);
   }
 }
 
 function boundaryReached(playerColor, spriteNumber) {
   let hasRotated = false;
-  if (currentSpritePositions[playerColor][spriteNumber-1] <= maxMoves[playerColor]){ //this change
+  if (Game.currentSpritePositions[playerColor][spriteNumber-1] <= Game.maxMoves[playerColor]){ //this change
     hasRotated = true;
   }
-  if (currentSpritePositions[playerColor][spriteNumber-1] + currentDice > maxMoves[playerColor] && hasRotated) {
+  if (Game.currentSpritePositions[playerColor][spriteNumber-1] + Game.currentDice > Game.maxMoves[playerColor] && hasRotated) {
     return true; //working on this
   }
 }
 
 function rollDice() {
-  currentDice = Math.floor(Math.random() * (6 - 1 + 1) + 1);
+  Game.currentDice = Math.floor(Math.random() * (6 - 1 + 1) + 1);
   let diceCounter = document.getElementById('dice-counter');
-  diceCounter.innerHTML = currentDice;
+  diceCounter.innerHTML = Game.currentDice;
   document.getElementById('roll-dice-btn').removeEventListener("click", rollDice);
-  if(currentDice < 6 && isLocked(currentPlayer)) {
+  if(Game.currentDice < 6 && isLocked(Game.currentPlayer)) {
     nextMove();
   }
   else {
-    makeSpritesClickable(currentPlayer);
+    makeSpritesClickable(Game.currentPlayer);
   }
   return;
 }
@@ -167,13 +168,13 @@ function opponentExists (playerColor, position) {
   }
 
   // let x = [["white",69],["white",69],["white",69],["white",69]]
-  let colors = Object.keys(currentSpritePositions);
+  let colors = Object.keys(Game.currentSpritePositions);
   let killFlag = false;
 
   for (let i=0; i<4; i++) {
     let currentColor = colors[i];
     for(let j=0; j<4; j++){
-      if (position == currentSpritePositions[currentColor][j] && currentColor != playerColor) {
+      if (position == Game.currentSpritePositions[currentColor][j] && currentColor != playerColor) {
         // x[i][0] = currentColor;
         // x[i][1] = j;
         killFlag = killOpponent(currentColor, j + 1);
@@ -184,7 +185,7 @@ function opponentExists (playerColor, position) {
 }
 
 function movePawn(playerColor, spriteNumber){
-  let x = currentSpritePositions[playerColor][spriteNumber - 1];
+  let x = Game.currentSpritePositions[playerColor][spriteNumber - 1];
   let postitionContainer = document.getElementById("box"+x);
   let pawn = document.getElementById(playerColor+"-pawn-"+spriteNumber);  //working here.. sprites dont return to home,, also extra turn after killing
   let position = getOffset(postitionContainer);  //working here
@@ -202,7 +203,7 @@ function movePawn(playerColor, spriteNumber){
     console.log(killFlag);
     nextMoveSamePlayer();
   }
-  else if (currentDice == 6) {
+  else if (Game.currentDice == 6) {
     nextMoveSamePlayer(); //check this
   } else {
     nextMove();
@@ -224,51 +225,51 @@ function killOpponent(playerColor,spriteNumber){
     pawn.style.marginLeft= "28px";
     // pawn.style.backgroundColor=playerColor;
 
-    players[currentPlayer+"Killer"] = true;
-    console.log(players);
+    Game.players[Game.currentPlayer+"Killer"] = true;
+    console.log(Game.players);
 
     //set vars
-    currentSpritePositions[playerColor][spriteNumber -1] = startingSpritePositions[playerColor];
-    players[playerColor+"OutOfHome"][spriteNumber-1] = false;
+    Game.currentSpritePositions[playerColor][spriteNumber -1] = Game.startingSpritePositions[playerColor];
+    Game.players[playerColor+"OutOfHome"][spriteNumber-1] = false;
     if (isLocked(playerColor)) {
-      players[playerColor+"Killer"] = false;
+      Game.players[playerColor+"Killer"] = false;
     }
   return true;
 }
 
 function nextMoveSamePlayer() {
   document.getElementById('dice-counter').innerHTML = "";
-  disableSprites(currentPlayer);
+  disableSprites(Game.currentPlayer);
 
   makeRollDiceClickable();
 
-  // currentDice = 0; //working here 5pm
+  // Game.currentDice = 0; //working here 5pm
   return;
 }
 
 function nextMove(){
   document.getElementById('dice-counter').innerHTML = ""
-  disableSprites(currentPlayer);
+  disableSprites(Game.currentPlayer);
   
-  let player = currentPlayer
+  let player = Game.currentPlayer
   switch (player) {
-    case "red": currentPlayer="green" 
+    case "red": Game.currentPlayer="green" 
     break;
-    case "green": currentPlayer="yellow" 
+    case "green": Game.currentPlayer="yellow" 
     break;
-    case "yellow": currentPlayer="blue" 
+    case "yellow": Game.currentPlayer="blue" 
     break;
-    case "blue": currentPlayer="red" 
+    case "blue": Game.currentPlayer="red" 
     break;
   }
   // didMove = false;
 
   makeRollDiceClickable();
-  // window.alert(currentPlayer+"'s turn"); //temporary code
-  previousDice = currentDice;
-  currentDice = 0; //working here 5pm
-  // document.getElementById('dice-counter').innerHTML = ".  previous= "+previousDice+"      current= "+ currentDice;
-  playerInHand(currentPlayer);
+  // window.alert(Game.currentPlayer+"'s turn"); //temporary code
+  Game.previousDice = Game.currentDice;
+  Game.currentDice = 0; //working here 5pm
+  // document.getElementById('dice-counter').innerHTML = ".  previous= "+Game.previousDice+"      current= "+ Game.currentDice;
+  playerInHand(Game.currentPlayer);
   return;
 }
 
@@ -277,7 +278,7 @@ function playerInHand(playerColor) {
   navTurn.innerHTML = playerColor+"'s turn.";
   navTurn.style.color = playerColor;
 
-  console.log(currentPlayer);
+  console.log(Game.currentPlayer);
   makeRollDiceClickable();
   // makeSpritesClickable(playerColor);
   return;
@@ -285,7 +286,7 @@ function playerInHand(playerColor) {
 
 function isLocked(playerColor) {
   for (let i=0;i<4;i++){
-    if (players[playerColor+"OutOfHome"][i]) {
+    if (Game.players[playerColor+"OutOfHome"][i]) {
       return false;
     }
   }
@@ -295,7 +296,7 @@ function isLocked(playerColor) {
 }
 
 function moveWithinFinish(playerColor, spriteNumber) {
-  let destination = currentSpritePositions[playerColor][spriteNumber - 1] + currentDice;
+  let destination = Game.currentSpritePositions[playerColor][spriteNumber - 1] + Game.currentDice;
   console.log('is finishing');
   if (destination > 76) {
     return;
@@ -305,7 +306,7 @@ function moveWithinFinish(playerColor, spriteNumber) {
     return;
   }
 
-  currentSpritePositions[playerColor][spriteNumber - 1] = destination;
+  Game.currentSpritePositions[playerColor][spriteNumber - 1] = destination;
   let x = destination - 70;
   let postitionContainer = document.getElementById("box-"+playerColor+"-"+x);
   let pawn = document.getElementById(playerColor+"-pawn-"+spriteNumber); 
@@ -321,15 +322,15 @@ function moveWithinFinish(playerColor, spriteNumber) {
 }
 
 function moveToLastZone(playerColor,spriteNumber) {
-  let difference = currentSpritePositions[playerColor][spriteNumber-1] + currentDice - maxMoves[playerColor]; //working on this
+  let difference = Game.currentSpritePositions[playerColor][spriteNumber-1] + Game.currentDice - Game.maxMoves[playerColor]; //working on this
   if (difference == 6) {
     spriteWon(playerColor, spriteNumber);
     return;
   }
 
-  currentSpritePositions[playerColor][spriteNumber - 1] = difference + 70;
+  Game.currentSpritePositions[playerColor][spriteNumber - 1] = difference + 70;
 
-  let x = currentSpritePositions[playerColor][spriteNumber - 1] - 70;
+  let x = Game.currentSpritePositions[playerColor][spriteNumber - 1] - 70;
   let postitionContainer = document.getElementById("box-"+playerColor+"-"+x);
   let pawn = document.getElementById(playerColor+"-pawn-"+spriteNumber); 
   let position = getOffset(postitionContainer); 
@@ -341,14 +342,14 @@ function moveToLastZone(playerColor,spriteNumber) {
   pawn.style.marginTop= "9px";
   pawn.style.marginLeft= "9px";
 
-  players[playerColor+"Finishing"][spriteNumber - 1] = true;
-  players[playerColor+"OutOfHome"][spriteNumber - 1] = false;
+  Game.players[playerColor+"Finishing"][spriteNumber - 1] = true;
+  Game.players[playerColor+"OutOfHome"][spriteNumber - 1] = false;
   nextMove();
 }
 
 function spriteWon(playerColor, spriteNumber){
-  finished[playerColor][spriteNumber - 1] = true; 
-  players[playerColor+"OutOfHome"][spriteNumber - 1] = false;
+  Game.finished[playerColor][spriteNumber - 1] = true; 
+  Game.players[playerColor+"OutOfHome"][spriteNumber - 1] = false;
 
   let pawn = document.getElementById(playerColor+"-pawn-"+spriteNumber); 
 
@@ -367,7 +368,7 @@ function spriteWon(playerColor, spriteNumber){
 }
 
 function hasWon(playerColor) {
-  if (finished[playerColor][0] && finished[playerColor][1] && finished[playerColor][2] && finished[playerColor][3]) {
+  if (Game.finished[playerColor][0] && Game.finished[playerColor][1] && Game.finished[playerColor][2] && Game.finished[playerColor][3]) {
     window.alert(playerColor+"won");
   }
 }
@@ -424,20 +425,20 @@ window.addEventListener('resize', function(event) {
     for (let j=1;j<5;j++){
       let pawn = document.getElementById(playerColor+"-pawn-"+j);
 
-      if(players[playerColor+"OutOfHome"][j-1] && !players[playerColor+"Finishing"][j-1]) {
-        let x = currentSpritePositions[playerColor][j-1]
+      if(Game.players[playerColor+"OutOfHome"][j-1] && !Game.players[playerColor+"Finishing"][j-1]) {
+        let x = Game.currentSpritePositions[playerColor][j-1]
         let position = getOffset(document.getElementById("box"+x));
         pawn.style.top= position.top+"px";
         pawn.style.left= position.left+"px";
       }
-      if(!players[playerColor+"OutOfHome"][j-1]){
+      if(!Game.players[playerColor+"OutOfHome"][j-1]){
         //send it to home
         let position = getOffset(document.getElementById(playerColor+"-circle-"+j));
         pawn.style.top= position.top+"px";
         pawn.style.left= position.left+"px";
       }
-      else if(players[playerColor+"Finishing"][j-1]){
-        let x = currentSpritePositions[playerColor][j-1] - 70;
+      else if(Game.players[playerColor+"Finishing"][j-1]){
+        let x = Game.currentSpritePositions[playerColor][j-1] - 70;
         let position = document.getElementById("box-"+playerColor+"-"+x);
         pawn.style.top= position.top+"px";
         pawn.style.left= position.left+"px";
