@@ -15,7 +15,12 @@ export default function App () {
     }
     socket.on('connect', onConnect)
     socket.on('disconnect', onDisconnect)
-  })
+    return () => {
+      socket.off('connect', onConnect);
+      socket.off('disconnect', onDisconnect);
+    };
+  },[])
+  // socket.connect() //this command connects the socket
     return (
         <div className="main-container center">
         <Nav />
