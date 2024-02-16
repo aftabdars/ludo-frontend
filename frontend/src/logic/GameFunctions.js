@@ -1,4 +1,4 @@
-
+import {socket} from '../socket'
 let Game = {
    currentDice : 0,
    previousDice : 0,
@@ -44,11 +44,14 @@ let Game = {
   },
 }
 
+socket.on('gameData', (gameData)=>{Game = gameData; playerInHand(Game.currentPlayer)})
+
 export default function onPlayerJoin(playerColor) {
   movePawnsToHome(playerColor);
   // makeRollDiceClickable();
   // makeSpritesClickable(playerColor);
   playerInHand(Game.currentPlayer);
+  socket.connect()
   return;
 }
 
@@ -244,6 +247,7 @@ function nextMoveSamePlayer() {
   makeRollDiceClickable();
 
   // Game.currentDice = 0; //working here 5pm
+  socket.emit('nextMove', Game)
   return;
 }
 
@@ -270,6 +274,7 @@ function nextMove(){
   Game.currentDice = 0; //working here 5pm
   // document.getElementById('dice-counter').innerHTML = ".  previous= "+Game.previousDice+"      current= "+ Game.currentDice;
   playerInHand(Game.currentPlayer);
+  socket.emit('nextMove', Game)
   return;
 }
 
